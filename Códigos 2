@@ -1,0 +1,33 @@
+// Pines de los sensores (ajusta si usas otros pines)
+const int sensorPins[8] = {A0, A1, A2, A3, A4, A5, A6, A7}; 
+
+// Umbral para negro/blanco (ajusta según tu superficie)
+const int threshold = 120;  
+
+void setup() {
+  Serial.begin(9600); // Inicia comunicación serial
+  Serial.println("=== TESTEO DE SENSORES ===");
+  Serial.println("Valores: Analógico (Digital)");
+}
+
+void loop() {
+  // Lee y muestra los valores de cada sensor
+  for (int i = 0; i < 8; i++) {
+    int analogValue = analogRead(sensorPins[i]);
+    int digitalValue = (analogValue > threshold) ? 1 : 0;
+
+    // Formato: "Sensor X: 456 (1)"
+    Serial.print("Sensor ");
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.print(analogValue);
+    Serial.print(" (");
+    Serial.print(digitalValue);
+    Serial.print(")");
+
+    if (i < 7) Serial.print(" | "); // Separador entre sensores
+  }
+
+  Serial.println(); // Nueva línea
+  delay(500); // Retardo para lectura (ajusta velocidad)
+}
