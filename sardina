@@ -1,0 +1,180 @@
+// Definición de pines para los sensores
+const int sensorPins[8] = {A0, A1, A2, A3, A4, A5, A6, A7}; // Pines analógicos para los 8 sensores
+
+// Definición de pines para los motores
+// Motor A (por ejemplo, motor izquierdo)
+const int motorA1 = 2;  // Pin digital 1 para motor A
+const int motorA2 = 3;  // Pin digital 2 para motor A
+const int enableA = 9;  // Pin PWM para control de velocidad motor A
+
+// Motor B (por ejemplo, motor derecho)
+const int motorB1 = 4;  // Pin digital 1 para motor B
+const int motorB2 = 5;  // Pin digital 2 para motor B
+const int enableB = 10; // Pin PWM para control de velocidad motor B
+
+// Umbral para determinar negro/blanco
+const int threshold = 120;
+
+// Variables para almacenar el estado de los sensores
+int sensorValues[8];    // Valores analógicos crudos
+int digitalValues[8];   // Valores digitales (1 o 0)
+
+// Velocidades de los motores
+int baseSpeed = 150;    // Velocidad base (ajustar según necesidad)
+int turnSpeed = 200;    // Velocidad al girar
+
+void setup() {
+  // Inicializar pines de los sensores como entradas
+  for (int i = 0; i < 8; i++) {
+    pinMode(sensorPins[i], INPUT);
+  }
+  
+  // Inicializar pines de los motores como salidas
+  pinMode(motorA1, OUTPUT);
+  pinMode(motorA2, OUTPUT);
+  pinMode(enableA, OUTPUT);
+  pinMode(motorB1, OUTPUT);
+  pinMode(motorB2, OUTPUT);
+  pinMode(enableB, OUTPUT);
+  
+  // Inicializar comunicación serial para depuración
+  Serial.begin(9600);
+}
+
+void loop() {
+  // Leer todos los sensores
+  readSensors();
+  
+  // Tomar decisiones basadas en los sensores
+  followLine();
+  
+  // Pequeño retardo para estabilidad
+  delay(10);
+}
+
+void readSensors() {
+  for (int i = 0; i < 8; i++) {
+    sensorValues[i] = analogRead(sensorPins[i]);
+    // Convertir a valor digital (1 para negro, 0 para blanco)
+    digitalValues[i] = (sensorValues[i] > threshold) ? 1 : 0;
+  }
+  
+  // Opcional: imprimir valores para depuración
+  /*
+  Serial.print("Sensores: ");
+  for (int i = 0; i < 8; i++) {
+    Serial.print(digitalValues[i]);
+    Serial.print(" ");
+  }
+  Serial.println();
+  */
+}
+
+void followLine() {
+  // Caso 1: Línea en el centro (sensores centrales detectan la línea)
+  if (digitalValues[3] == 1 && digitalValues[4] == 1) {
+    moveForward();
+  }
+  // Caso 2: Línea ligeramente a la izquierda
+  else if (digitalValues[2] == 1) {
+    turnLeft();
+  }
+  // Caso 3: Línea ligeramente a la derecha
+  else if (digitalValues[5] == 1) {
+    turnRight();
+  }
+  // Caso 4: Línea más a la izquierda
+  else if (digitalValues[1] == 1) {
+    sharpLeft();
+  }
+  // Caso 5: Línea más a la derecha
+  else if (digitalValues[6] == 1) {
+    sharpRight();
+  }
+  // Caso 6: Línea muy a la izquierda
+  else if (digitalValues[0] == 1) {
+    verySharpLeft();
+  }
+  // Caso 7: Línea muy a la derecha
+  else if (digitalValues[7] == 1) {
+    verySharpRight();
+  }
+  // Caso 8: No se detecta línea (posiblemente perdido)
+  else {
+    // Puedes decidir qué hacer aquí: detenerse, buscar, o continuar con la última dirección
+    stopMotors();
+  }
+}
+
+// Funciones de control de motores
+void moveForward() {
+  digitalWrite(motorA1, HIGH);
+  digitalWrite(motorA2, LOW);
+  digitalWrite(motorB1, HIGH);
+  digitalWrite(motorB2, LOW);
+  analogWrite(enableA, baseSpeed);
+  analogWrite(enableB, baseSpeed);
+}
+
+void turnLeft() {
+  digitalWrite(motorA1, LOW);
+  digitalWrite(motorA2, HIGH);
+  digitalWrite(motorB1, HIGH);
+  digitalWrite(motorB2, LOW);
+  analogWrite(enableA, turnSpeed);
+  analogWrite(enableB, turnSpeed);
+}
+
+void turnRight() {
+  digitalWrite(motorA1, HIGH);
+  digitalWrite(motorA2, LOW);
+  digitalWrite(motorB1, LOW);
+  digitalWrite(motorB2, HIGH);
+  analogWrite(enableA, turnSpeed);
+  analogWrite(enableB, turnSpeed);
+}
+
+void sharpLeft() {
+  digitalWrite(motorA1, LOW);
+  digitalWrite(motorA2, HIGH);
+  digitalWrite(motorB1, HIGH);
+  digitalWrite(motorB2, LOW);
+  analogWrite(enableA, turnSpeed + 50);
+  analogWrite(enableB, turnSpeed - 30);
+}
+
+void sharpRight() {
+  digitalWrite(motorA1, HIGH);
+  digitalWrite(motorA2, LOW);
+  digitalWrite(motorB1, LOW);
+  digitalWrite(motorB2, HIGH);
+  analogWrite(enableA, turnSpeed - 30);
+  analogWrite(enableB, turnSpeed + 50);
+}
+
+void verySharpLeft() {
+  digitalWrite(motorA1, LOW);
+  digitalWrite(motorA2, HIGH);
+  digitalWrite(motorB1, HIGH);
+  digitalWrite(motorB2, LOW);
+  analogWrite(enableA, 255);
+  analogWrite(enableB, 100);
+}
+
+void verySharpRight() {
+  digitalWrite(motorA1, HIGH);
+  digitalWrite(motorA2, LOW);
+  digitalWrite(motorB1, LOW);
+  digitalWrite(motorB2, HIGH);
+  analogWrite(enableA, 100);
+  analogWrite(enableB, 255);
+}
+
+void stopMotors() {
+  digitalWrite(motorA1, LOW);
+  digitalWrite(motorA2, LOW);
+  digitalWrite(motorB1, LOW);
+  digitalWrite(motorB2, LOW);
+  analogWrite(enableA, 0);
+  analogWrite(enableB, 0);
+}
