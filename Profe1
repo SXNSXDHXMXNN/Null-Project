@@ -1,0 +1,89 @@
+int MotorA1 = 2;
+int MotorA2 = 3;
+int MotorB1 = 5;
+int MotorB2 = 4;
+int Sensor1 = A0;
+int Sensor2 = A1;
+int Sensor3 = A2;
+int Sensor4 = A3;
+int Sensor5 = A4;
+int Sensor6 = A5;
+
+int Valor1;
+int Valor2;
+int Valor3;
+int Valor4;
+int Valor5;
+int Valor6;
+
+
+void setup() {
+  pinMode(MotorA1, OUTPUT);
+  pinMode(MotorA2, OUTPUT);
+  pinMode(MotorB1, OUTPUT);
+  pinMode(MotorB2, OUTPUT);
+  pinMode(Sensor1, INPUT);
+  pinMode(Sensor2, INPUT);
+  pinMode(Sensor3, INPUT);
+  pinMode(Sensor4, INPUT);
+  pinMode(Sensor5, INPUT);
+  pinMode(Sensor6, INPUT);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  Valor1 = analogRead(Sensor1);
+  Valor2 = analogRead(Sensor2);
+  Valor3 = analogRead(Sensor3);
+  Valor4 = analogRead(Sensor4);
+  Valor5 = analogRead(Sensor5);
+  Valor6 = analogRead(Sensor6);
+
+  Serial.print("Sensor 1: ");
+  Serial.println(Valor1);
+  Serial.print("Sensor 2: ");
+  Serial.println(Valor2);
+  Serial.print("Sensor 3: ");
+  Serial.println(Valor3);
+  Serial.print("Sensor 4: ");
+  Serial.println(Valor4);
+  Serial.print("Sensor 5: ");
+  Serial.println(Valor5);
+  Serial.print("Sensor 6: ");
+  Serial.println(Valor6);
+  delay(1500);
+
+  // Un pasito
+  if (Valor3 > 120 && Valor4 > 120) {
+    digitalWrite(MotorA1, LOW);
+    digitalWrite(MotorA2, HIGH);
+    digitalWrite(MotorB1, LOW);
+    digitalWrite(MotorB2, HIGH);
+    delay(40);
+    
+    digitalWrite(MotorB2, LOW);
+    digitalWrite(MotorA2, LOW);
+    delay(300);
+  }
+
+
+  if (Valor3 > 120 && Valor4 < 120) {
+    digitalWrite(MotorA1, LOW);
+    digitalWrite(MotorA2, HIGH);
+    delay(30);
+    
+    digitalWrite(MotorA2, LOW);
+    delay(300);
+  }
+  if (Valor4 > 120 && Valor3 < 120) {
+    digitalWrite(MotorB1, LOW);
+    digitalWrite(MotorB2, HIGH);
+    delay(30);
+
+    digitalWrite(MotorB2, LOW);
+    digitalWrite(MotorA2, LOW);
+    delay(300);
+
+  }
+}
